@@ -1,0 +1,39 @@
+<app-header></app-header>
+
+    <!-- login form -->
+
+    <div class="mx-1 m-loco">
+        <div class=" my-5">
+            <div class="col-12 lg-spacing">
+                <div class="box-login-form roboto-condensed-valemia-t">
+                    <div class="form-group mx-2">
+                        <label for="namereg">Nombre</label>
+                        <input autocomplete="false" id="namereg" type="name" class="form-control"aria-describedby="emailHelp" [(ngModel)]="nombre">
+                      </div>
+                    <div class="form-group mx-2">
+                      <label for="exampleInputEmail1">Email</label>
+                      <input autocomplete="false" id="exampleInputEmail1" type="email" class="form-control"aria-describedby="emailHelp" [(ngModel)]="email">
+                    </div>
+                    <div class="form-group mx-2">
+                      <label for="exampleInputPassword1">Contraseña</label>
+                      <input [type]="changetype?'password':'text'" autocomplete="false" id="exampleInputPassword1" class="form-control" [(ngModel)]="password">
+                      <span class="eyeicon" (click)="viewpass()"><i [ngClass]="visible?'fa fa-eye':'fa fa-eye-slash'"></i></span>
+                    </div>
+                    <div class="form-group mx-2">
+                        <label for="exampleInputPassword2">Repite tu contraseña</label>
+                        <input [type]="changetype?'password':'text'" autocomplete="false" id="exampleInputPassword2" class="form-control" [(ngModel)]="confpassword">
+                        <span class="eyeicon" (click)="viewpass()"><i [ngClass]="visible?'fa fa-eye':'fa fa-eye-slash'"></i></span>
+                    </div>
+                    <div class="m-3">
+                      <a routerLink="" class="">ya tienes cuenta?</a>
+                    </div>
+                    <div class="mx-auto">
+                        <button type="submit" class="btn btn-warning offsetbtnlgn" (click)="registrar()">Registrar</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>

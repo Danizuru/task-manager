@@ -1,0 +1,111 @@
+<app-menu></app-menu>
+
+<div class="container task-content">
+  <div class="row">
+    <div cdkDropListGroup>
+
+      <!-- Button trigger modal -->
+       <div class="navbar">
+        <button type="button" class=" btn btn-warning" data-toggle="modal" data-target="#exampleModal">
+          Crear Tarea
+        </button>
+        <button type="button" class="btn btn-success" (click)="Guardar()">
+          Guardar
+        </button>
+       </div>
+
+      <!-- tabla 1 -->
+      
+        <div class="example-container col-4">
+          <h2>Pendientes</h2>
+      
+          <div
+            id="Pendientebox"
+            cdkDropList
+            #pendList="cdkDropList"
+            [cdkDropListConnectedTo]="[progList]"
+            [cdkDropListData]="listPendiente"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let item of listPendiente" cdkDrag 
+            (click)="EditarId(item._id)">{{item.task}}{{item.cod_cat}}</div>
+          </div>
+        </div>
+      
+      <!-- tabla 2 -->
+      
+        <div class="example-container col-4">
+          <h2>En Progreso</h2>
+      
+          <div
+            id="Progresobox"
+            cdkDropList
+            #progList="cdkDropList"
+            [cdkDropListConnectedTo]="[pendList]"
+            [cdkDropListData]="listProgreso"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let item of listProgreso" 
+            (drag)="EditarId(item._id)" cdkDrag>{{item.task}}{{item.cod_cat}}</div>
+          </div>
+        </div>
+      
+      <!-- tabla 3 -->
+      
+        <div class="example-container col-4">
+          <h2>Completadas</h2>
+      
+          <div
+            id="Completadabox"
+            cdkDropList
+            [cdkDropListData]="listCompletada"
+            class="example-list"
+            (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let item of listCompletada" 
+            (click)="EditarId(item._id)" cdkDrag>{{item.task}} {{item.cod_cat}}</div>
+          </div>
+        </div>
+      
+   <!-- (cdkDropListEntered)="" -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Crear Tarea nueva</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="form-group m-3">
+        <label for="exampleFormControlSelect1">Categorias</label>
+        <select class="form-control" id="cod_cat" [(ngModel)]="cod_cat">
+          
+            <option value="Pendiente" >Pendiente</option>
+            <option value="En Progreso" >En Progreso</option>
+            <option value="Completada" >Pendiente</option>
+          
+        </select>
+      </div>
+      
+  <div class="form-group m-3">
+    <label for="exampleFormControlTextarea1" >Tarea:</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" [(ngModel)]="task"></textarea>
+  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger">Eliminar</button>
+        <button type="button" class="btn btn-secondary" *ngIf="Idseleccionado == '1'" >Actualizar</button>
+        <button type="button" class="btn btn-warning" (click)="Guardar()">Guardar</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+      
+      
+      </div>
+
+  </div>
+</div>

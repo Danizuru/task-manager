@@ -1,0 +1,40 @@
+
+      
+      <!-- 2nd nav bar -->
+      <!-- <nav class="nav nav-pills nav-fill bg-white lk-tx-black anton-sm fixed-top-2">
+        <a class="nav-link tx-zoom" routerLink="#">Whisky</a>
+        <a class="nav-link tx-zoom" routerLink="#">Tequila y Mezcal</a>
+        <a class="nav-link tx-zoom" routerLink="#">Ginebra</a>
+        <a class="nav-link tx-zoom" routerLink="#">Vodka</a>
+        <a class="nav-link tx-zoom" routerLink="#">Ron</a>
+        <a class="nav-link tx-zoom" routerLink="#">Cocteles</a>
+      </nav> -->
+
+
+      <!-- 2nd nav custom -->
+    
+        <nav class="nav nav-pills nav-fill bg-white lk-tx-black anton-sm fixed-top-2" >
+            <ng-container *ngFor="let item of datos">
+              <a class="nav-link tx-zoom" routerLink="#"  *ngIf="item.estado == 1">{{item.nombre}}</a>
+            </ng-container>
+        </nav>
+
+
+
+
+
+     
+
+       <!-- 3rd nav bar -->
+
+
+      <nav class="nav nav-pills nav-fill bg-black anton-sm text-dark lk-tx-white nab-3">
+        <a class="nav-link misenlaces"><img src="./assets/icon-1-slider-informativo.png" alt="..."> Sitio oficial Bar Sell</a>
+        <a class="nav-link misenlaces"><img src="./assets/icon-2-slider-informativo.png" alt="..."> Envio gratis en todas tus compras</a>
+        <a class="nav-link misenlaces"><img src="./assets/icon-3-slider-informativo.png" alt="..."> personaliza tu botella</a>
+      </nav>
+      <div class="container bg-gradient-warning">
+        <div class="row">
+
+        </div>
+      </div>
