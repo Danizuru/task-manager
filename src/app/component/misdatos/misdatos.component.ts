@@ -1,223 +1,96 @@
 import { Component, OnInit } from '@angular/core';
 import {
   CdkDragDrop,
-  CdkDrag,
-  CdkDropList,
-  CdkDropListGroup,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { PeticionService } from 'src/app/servicios/peticion.service';
 
-
-declare let $:any
-declare let Swal:any
-
+declare let $: any;
+declare let Swal: any;
 
 @Component({
   selector: 'app-misadatos',
   templateUrl: './misdatos.component.html',
   styleUrls: ['./misdatos.component.css'],
 })
-export class MisdatosComponent {
+export class MisdatosComponent implements OnInit {
+  listadata: any = [];
+  datoscategorias: any[] = [];
+  cod_cat: string = '';
+  task: string = '';
+  Idseleccionado: string = '';
 
-  constructor (private peticion:PeticionService){}
+  listProgreso: any = [];
+  listCompletada: any = [];
+  listPendiente: any = [];
+
+  constructor(private peticion: PeticionService) {}
 
   ngOnInit() {
-    this.cargarTodascategorias()
-    this.cargarTodasdata()
+    this.cargarTodascategorias();
+    this.cargarTodasdata();
   }
-
-  listadata:any = []
-  datoscategorias:any[] = []
-  cod_cat:string = ""
-  task:string = ""
-  Idseleccionado:String =""
-
-  listProgreso:any = []
-  listCompletada:any = []
-  listPendiente:any = []
-
-/**Carga categorias (para uso de implementaciones futuras) */
-  cargarTodascategorias(){
-
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/categorias/listar",
-      payload:{
-      }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      console.log(res)
-      
-      this.datoscategorias = res.data
-      console.log(this.datoscategorias)
-    }
-    
-  )
+  /**Carga categorias (para uso de implementaciones futuras) */
+  cargarTodascategorias() {
+    this.peticion.Post(this.peticion.urlHost + '/categorias/listar', {}).then((res: any) => {
+      this.datoscategorias = res.data;
+    });
   }
-/**Organizar informacion y clasificar en listas de acuerso al estado */
-  cargarTodasdata(){
+  /**Organizar informacion  */
+  cargarTodasdata() {
+    this.listPendiente = [];
+    this.listProgreso = [];
+    this.listCompletada = [];
 
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/Tags/listarPendiente",
-      payload:{
-      }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      console.log('------->',res.data)
-      this.listadata = res.data
-
-      res.data.forEach((tarea:any) => {
-        if(tarea.cod_cat === 'Pendiente'){
-          this.listPendiente.push(tarea)
-      
-        }
-        if(tarea.cod_cat === 'En Progreso'){
-          this.listProgreso.push(tarea)
-      
-        }
-        if(tarea.cod_cat === 'Completada'){
-          this.listCompletada.push(tarea)
-      
-        }
-        
-      });
-    }
-  )
+    this.peticion.Post(this.peticion.urlHost + '/Tags/listarPendiente', {}).then((res: any) => {
+      this.listadata = res.data;
+      this.classifyTasks(res.data);
+    });
   }
-/**Abrir ventana para modificar informacion */
-  AbrirModal(){
-    this.cod_cat = ""
-    this.Idseleccionado = ""
-    $('#modalNuevo').modal('show')
+  /**clasificar en listas de acuerdo al estado */
+  classifyTasks(tasks: any[]) {
+    tasks.forEach((tarea: any) => {
+      switch (tarea.cod_cat) {
+        case 'Pendiente': this.listPendiente.push(tarea);
+          break;
+        case 'En Progreso': this.listProgreso.push(tarea);
+          break;
+        case 'Completada': this.listCompletada.push(tarea);
+          break;
+      }
+    });
   }
-/**Boton guardar dentro del modal */
-  Guardar(){
-
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/tags/save",
-      payload:{
-        cod_cat:this.cod_cat,
-        task:this.task,
-      }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      if(res.state == true){
-
-        Swal.fire({
-          icon: "success",
-          title: "Que Bien!",
-          text: res.mensaje,
-        });
-
-        $('#modalNuevo').modal('hide')
-        this.cargarTodascategorias()
-      }
-      else{
-        Swal.fire({
-          icon: "error",
-          title: "Ouchh.",
-          text: res.mensaje,
-        });
-      }
-    })
+  /**Limpiar elementos(si existen) al crear nuevo modal */
+  AbrirModal() {
+    this.cod_cat = '';
+    this.task = '';
+    this.Idseleccionado = ''; 
   }
-/**Abrir modal para editar celda seleccionada al dar click*/
-  EditarId(id:string){
-    
-    console.log('punch',this.Idseleccionado)
-    this.Idseleccionado = id
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/tags/listarid",
-      payload:{
-        _id:id
-      }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      console.log(res)
-        this.cod_cat = res.data[0].cod_cat
-        this.task = res.data[0].task
-        
-        $('#modalNuevo').modal('show')
-      // if(res.data != undefined){
-      // }
-    }
-  )
-    
+  /**Boton guardar dentro del modal */
+  Guardar() {
+    this.saveOrUpdateTask('/tags/save', { cod_cat: this.cod_cat, task: this.task });
   }
-  Eliminar(){
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/tags/delete",
-      payload:{
-        _id:this.Idseleccionado
-      }
-    }
-    this.peticion.Post(post.host+post.path, post.payload).then(
-      (res:any) => {
-        console.log(res)
-        if(res.state == true){
-
-          Swal.fire({
-            icon: "success",
-            title: "Que Bien!",
-            text: res.mensaje,
-          });
-
-          $('#modalNuevo').modal('hide')
-          this.cargarTodascategorias()
-        }
-        else{
-          Swal.fire({
-            icon: "error",
-            title: "Ouchh.",
-            text: res.mensaje,
-          });
-        }
-      })
+  /**Abrir modal y cargar datos para editar celda seleccionada al dar click */
+  EditarId(id: string) {
+    this.Idseleccionado = id;
+    this.peticion.Post(this.peticion.urlHost + '/tags/listarid', { _id: id }).then((res: any) => {
+      const data = res.data[0];
+      this.cod_cat = data.cod_cat;
+      this.task = data.task;
+      $('#exampleModal').modal('show');
+    });
   }
-  Actualizar(){
-
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/tags/update",
-      payload:{
-        _id:this.Idseleccionado,
-        cod_cat:this.cod_cat,
-        task:this.task,
-
-      }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      console.log(res)
-      if(res.state == true){
-
-        Swal.fire({
-          icon: "success",
-          title: "Que Bien!",
-          text: res.mensaje,
-        });
-
-        $('#modalNuevo').modal('hide')
-        this.cargarTodascategorias()
-      }
-      else{
-        Swal.fire({
-          icon: "error",
-          title: "Ouchh.",
-          text: res.mensaje,
-        });
-      }
-    })
+  Eliminar() {
+    this.saveOrUpdateTask('/tags/delete', { _id: this.Idseleccionado });
+    $('#exampleModal').modal('hide');
+  }
+  Actualizar() {
+    this.saveOrUpdateTask('/tags/update', {
+      _id: this.Idseleccionado,
+      cod_cat: this.cod_cat,
+      task: this.task,
+    });
   }
 /**Actualizar elementos en pantalla */
   drop(event: CdkDragDrop<string[]>) {
@@ -228,127 +101,39 @@ export class MisdatosComponent {
         event.previousContainer.data,
         event.container.data,
         event.previousIndex,
-        event.currentIndex,
+        event.currentIndex
       );
-      this.updateItemStatus
-      console.log(this.listCompletada,this.listPendiente,this.listProgreso)
-      
+      const item = event.container.data[event.currentIndex];
+      this.updateItemStatus(item, event.container.id);
     }
-    this.Actualizar();
   }
-
-  updateItemStatus(item: any, containerId: string,) {
-    let updatedStatus;
-    switch (containerId) {
-      case 'Pendientebox':
-        updatedStatus = 'Pendiente';
-        break;
-      case 'Progresobox':
-        updatedStatus = 'En progreso';
-        break;
-      case 'Completadabox':
-        updatedStatus = 'Completada';
-        break;
-    }
-    item.data = updatedStatus;
-    this.updateItemOnServer
+  updateItemStatus(item: any, containerId: string) {
+    const statusMap: { [key: string]: string } = {
+      Pendientebox: 'Pendiente',
+      Progresobox: 'En Progreso',
+      Completadabox: 'Completada',
+    };
+    item.cod_cat = statusMap[containerId];
+    this.saveOrUpdateTask('/tags/update', {
+      _id: item._id,
+      cod_cat: item.cod_cat,
+      task: item.task,
+    });
   }
-
-  updateItemOnServer(item: any) {
-    let post = {
-      host:this.peticion.urlHost,
-      path:"/tags/update",
-      payload:{
-        _id:this.Idseleccionado,
-        cod_cat:this.cod_cat,
-        task:this.task,
-
+  /**Tareas de guardar o actualizar */
+  saveOrUpdateTask(path: string, payload: any) {
+    this.peticion.Post(this.peticion.urlHost + path, payload).then((res: any) => {
+      const messageType = res.state ? 'success' : 'error';
+      const title = res.state ? 'Que Bien!' : 'Ouchh.';
+      Swal.fire({
+        icon: messageType,
+        title: title,
+        text: res.mensaje,
+      });
+      if (res.state) {
+        $('#exampleModal').modal('hide');
+        this.cargarTodasdata();
       }
-    }
-  this.peticion.Post(post.host+post.path, post.payload).then(
-    (res:any) => {
-      console.log(res)
-      if(res.state == true){
-
-        Swal.fire({
-          icon: "success",
-          title: "Que Bien!",
-          text: res.mensaje,
-        });
-
-        $('#modalNuevo').modal('hide')
-        this.cargarTodascategorias()
-      }
-      else{
-        Swal.fire({
-          icon: "error",
-          title: "Ouchh.",
-          text: res.mensaje,
-        });
-      }
-    })
-
-  // Actualizartask(){
-
-  //   let post = {
-  //     host:this.peticion.urlHost,
-  //     path:"/tags/update",
-  //     payload:{
-  //       _id:this.Idseleccionado,
-  //       cod_cat:this.cod_cat,
-  //       task:this.task,
-
-  //     }
-  //   }
-  // this.peticion.Post(post.host+post.path, post.payload).then(
-  //   (res:any) => {
-  //     console.log(res)
-  //     if(res.state == true){
-
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Que Bien!",
-  //         text: res.mensaje,
-  //       });
-
-  //       $('#modalNuevo').modal('hide')
-  //       this.cargarTodascategorias()
-  //     }
-  //     else{
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Ouchh.",
-  //         text: res.mensaje,
-  //       });
-  //     }
-  //   })
-
-
+    });
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

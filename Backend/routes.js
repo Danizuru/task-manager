@@ -45,7 +45,7 @@ const tagsController = require("./api/controladores/tagsController").tagsControl
 app.post("/tags/save", function(request,response){
     tagsController.save(request,response)
 })
-app.get("/tags/listar", function(request, response) {
+app.post("/tags/listar", function(request, response) {
     tagsController.listar(request,response)
 })
 app.post("/tags/listarPendiente", function(request, response) {
@@ -63,7 +63,7 @@ app.post("/tags/listarid", function(request, response) {
 app.post("/tags/update",  function(request,response){
     tagsController.update (request,response)
 })
-app.delete("/tags/delete", function(request,response){
+app.post("/tags/delete", function(request,response){
     tagsController.delete (request,response)
 })
 
